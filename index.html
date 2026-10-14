@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CarIQ — Vehicle Evaluation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0d0f;
+    --surface: #16161a;
+    --surface2: #1e1e24;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.15);
+    --accent: #e8ff47;
+    --accent-dim: rgba(232,255,71,0.12);
+    --text: #f0f0f0;
+    --text-muted: #888;
+    --text-dim: #555;
+    --red: #ff5e5e;
+    --green: #4dffb0;
+    --amber: #ffb347;
+    --radius: 12px;
+    --radius-lg: 20px;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .glow {
+    position: fixed;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(232,255,71,0.06) 0%, transparent 70%);
+    top: -200px; left: -100px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+  }
+
+  /* Header */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4rem;
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.5rem;
+    letter-spacing: -0.03em;
+  }
+
+  .logo span { color: var(--accent); }
+
+  .badge {
+    font-size: 11px;
+    font-weight: 500;
+    background: var(--accent-dim);
+    color: var(--accent);
+    border: 1px solid rgba(232,255,71,0.2);
+    padding: 4px 12px;
+    border-radius: 999px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* Hero */
+  .hero {
+    margin-bottom: 3.5rem;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+    margin-bottom: 1rem;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .hero p {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    font-weight: 300;
+    max-width: 480px;
+    line-height: 1.6;
+  }
+
+  /* Form card */
+  .form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .field label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .field select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    padding: 0.65rem 1rem;
+    border-radius: var(--radius);
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+  }
+
+  .field select:hover { border-color: var(--border-hover); }
+  .field select:focus { border-color: rgba(232,255,71,0.4); }
+  .field select option { background: #1e1e24; }
+
+  .submit-btn {
+    width: 100%;
+    padding: 1rem;
+    background: var(--accent);
+    color: #0d0d0f;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.02em;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+  }
+
+  .submit-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .submit-btn:active { transform: translateY(0); }
+  .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* Result */
+  #result { display: none; }
+
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    animation: fadeUp 0.4s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .result-label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .result-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+
+  .result-value.unacceptable  { color: var(--red); }
+  .result-value.acceptable    { color: var(--amber); }
+  .result-value.good   { color: var(--green); }
+  .result-value.vgood  { color: var(--accent); }
+
+  .result-icon {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem;
+    flex-shrink: 0;
+  }
+  .result-icon.unacceptable { background: rgba(255,94,94,0.12); }
+  .result-icon.acceptable   { background: rgba(255,179,71,0.12); }
+  .result-icon.good  { background: rgba(77,255,176,0.12); }
+  .result-icon.vgood { background: var(--accent-dim); }
+
+  /* Probability bars */
+  .prob-section h3 {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 1.2rem;
+  }
+
+  .prob-bars { display: flex; flex-direction: column; gap: 12px; }
+
+  .prob-row {
+    display: grid;
+    grid-template-columns: 90px 1fr 48px;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .prob-name {
+    font-size: 13px;
+    color: var(--text-muted);
+    text-transform: capitalize;
+  }
+
+  .prob-track {
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .prob-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .prob-pct {
+    font-size: 13px;
+    font-weight: 500;
+    text-align: right;
+  }
+
+  /* Error */
+  .error-card {
+    background: rgba(255,94,94,0.08);
+    border: 1px solid rgba(255,94,94,0.2);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    color: var(--red);
+    font-size: 0.9rem;
+    margin-top: 1rem;
+    display: none;
+  }
+
+  /* Loading spinner */
+  .spinner {
+    display: inline-block;
+    width: 16px; height: 16px;
+    border: 2px solid rgba(0,0,0,0.2);
+    border-top-color: #0d0d0f;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Divider */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 2rem 0;
+  }
+
+  /* Summary chips */
+  .summary-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 2rem;
+  }
+
+  .chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .chip strong { color: var(--text); font-weight: 500; }
+
+  @media (max-width: 480px) {
+    .container { padding: 2rem 1.25rem; }
+    .form-card, .result-card { padding: 1.5rem; }
+    .form-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="glow"></div>
+
+<div class="container">
+  <header>
+    <div class="logo">Car<span>IQ</span></div>
+    <div class="badge">AI Powered</div>
+  </header>
+
+  <section class="hero">
+    <h1>Is this car worth<br>your <em>money?</em></h1>
+    <p>Fill in the vehicle specs below and our decision-tree model will evaluate its overall condition instantly.</p>
+  </section>
+
+  <div class="form-card">
+    <div class="form-grid" id="formGrid">
+      <!-- Fields injected by JS -->
+      <div class="field"><label>Loading options…</label><select disabled></select></div>
+    </div>
+      <button class="submit-btn" id="submitBtn" onclick="runEvaluation()">Evaluate Vehicle</button>    <div class="error-card" id="errorCard"></div>
+  </div>
+
+  <div id="result">
+    <div class="result-card">
+      <div class="result-header">
+        <div>
+          <div class="result-label">Overall Evaluation</div>
+          <div class="result-value" id="resultValue">—</div>
+          <div style="font-size:0.85rem; color:var(--text-muted); margin-top:6px;" id="resultDesc"></div>
+        </div>
+        <div class="result-icon" id="resultIcon">🚗</div>
+      </div>
+
+      <div class="summary-chips" id="summaryChips"></div>
+
+      <hr class="divider">
+
+      <div class="prob-section">
+        <h3>Confidence breakdown</h3>
+        <div class="prob-bars" id="probBars"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = 'http://localhost:5001';
+
+const LABELS = {
+  buying:   'Buying Price',
+  maint:    'Maintenance Cost',
+  doors:    'Number of Doors',
+  persons:  'Seating Capacity',
+  lug_boot: 'Luggage Boot',
+  safety:   'Safety Rating'
+};
+
+const DESCRIPTIONS = {
+  unacceptable: 'Unacceptable — not recommended for purchase.',
+  acceptable:   'Acceptable — meets minimum requirements.',
+  good:  'Good — solid value for the price.',
+  vgood: 'Very Good — excellent choice!'
+};
+
+const ICONS = { unacceptable: '🚫', acceptable: '✅', good: '👍', vgood: '⭐' };
+
+const BAR_COLORS = {
+  unacceptable: '#ff5e5e',
+  acceptable:   '#ffb347',
+  good:  '#4dffb0',
+  vgood: '#e8ff47'
+};
+
+async function loadOptions() {
+  try {
+    const res = await fetch(`${API_BASE}/api/car/options`);
+    const options = await res.json();
+    renderForm(options);
+  } catch (e) {
+    document.getElementById('formGrid').innerHTML =
+      '<p style="color:var(--red);font-size:0.9rem;">⚠ Could not connect to the API. Make sure <code>api.py</code> is running on port 5001.</p>';
+  }
+}
+
+function renderForm(options) {
+  const grid = document.getElementById('formGrid');
+  grid.innerHTML = '';
+  for (const [key, values] of Object.entries(options)) {
+    const field = document.createElement('div');
+    field.className = 'field';
+    field.innerHTML = `
+      <label for="${key}">${LABELS[key] || key}</label>
+      <select id="${key}" name="${key}">
+        ${values.map(v => `<option value="${v}">${v}</option>`).join('')}
+      </select>`;
+    grid.appendChild(field);
+  }
+}
+
+async function runEvaluation() {
+  const btn = document.getElementById('submitBtn');
+  const errorCard = document.getElementById('errorCard');
+  errorCard.style.display = 'none';
+  document.getElementById('result').style.display = 'none';
+
+  const selects = document.querySelectorAll('#formGrid select');
+  const inputs = {};
+  selects.forEach(s => { inputs[s.name] = s.value; });
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Evaluating…';
+
+  try {
+    const res = await fetch(`${API_BASE}/api/car/prediction`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ inputs })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Prediction failed.');
+
+    renderResult(data, inputs);
+  } catch (e) {
+    errorCard.textContent = '⚠ ' + e.message;
+    errorCard.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Evaluate Vehicle';
+  }
+}
+
+function renderResult(data, inputs) {
+  const pred = data.prediction;
+  const probs = data.probabilities;
+
+  // Main result
+  const rv = document.getElementById('resultValue');
+  rv.className = 'result-value ' + pred;
+  rv.textContent = pred === 'vgood' ? 'Very Good' :
+                   pred.charAt(0).toUpperCase() + pred.slice(1);
+
+  document.getElementById('resultDesc').textContent = DESCRIPTIONS[pred] || '';
+
+  const icon = document.getElementById('resultIcon');
+  icon.className = 'result-icon ' + pred;
+  icon.textContent = ICONS[pred] || '🚗';
+
+  // Summary chips
+  const chips = document.getElementById('summaryChips');
+  chips.innerHTML = Object.entries(inputs).map(([k, v]) =>
+    `<div class="chip"><span style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;">${LABELS[k]||k}</span>&nbsp;<strong>${v}</strong></div>`
+  ).join('');
+
+  // Probability bars
+  const bars = document.getElementById('probBars');
+  bars.innerHTML = '';
+  const sorted = Object.entries(probs).sort((a, b) => b[1] - a[1]);
+  sorted.forEach(([label, pct]) => {
+    const color = BAR_COLORS[label] || '#888';
+    const displayLabel = label === 'vgood' ? 'Very Good' : label.charAt(0).toUpperCase() + label.slice(1);
+    const row = document.createElement('div');
+    row.className = 'prob-row';
+    row.innerHTML = `
+      <div class="prob-name">${displayLabel}</div>
+      <div class="prob-track"><div class="prob-fill" style="width:0%;background:${color}" data-width="${pct}"></div></div>
+      <div class="prob-pct" style="color:${color}">${pct}%</div>`;
+    bars.appendChild(row);
+  });
+
+  document.getElementById('result').style.display = 'block';
+
+  // Animate bars after render
+  requestAnimationFrame(() => {
+    document.querySelectorAll('.prob-fill').forEach(el => {
+      el.style.width = el.dataset.width + '%';
+    });
+  });
+
+  document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+loadOptions();
+</script>
+</body>
+</html>
