@@ -98,6 +98,6 @@ def get_options():
         options[col] = encoders[col].classes_.tolist()
     return jsonify(options)
 
-
 if __name__ == '__main__':
-    api.run(port=5001, debug=True)
+    port = int(os.environ.get('PORT', 5001))
+    api.run(host='0.0.0.0', port=port, debug=False)
